@@ -6,7 +6,7 @@ export interface KeywordResult {
   term: string;
   category: Category;
   /** Resume wording when it differs from the job's wording (synonym match). */
-  resumeAlias?: string;
+  resumeAlias?: string | undefined;
 }
 
 export interface Analysis {
@@ -297,7 +297,7 @@ const IMPERFECT: Record<string, string> = {
 };
 
 type Rule = [RegExp, (m: RegExpMatchArray) => string];
-const low = (s: string) => s.toLowerCase();
+const low = (s?: string) => (s ?? "").toLowerCase();
 
 const RULES: Rule[] = [
   [/^(?:fui |era )?respons[aá]vel (por|pela|pelo|pelas|pelos)\s+/i, (m) => "Conduzi " + ART_POR[low(m[1])]],
@@ -311,7 +311,7 @@ const RULES: Rule[] = [
   [/^mexia com\s+/i, () => "Operei "],
   [
     /^(desenvolvimento|cria[cç][aã]o|implementa[cç][aã]o|elabora[cç][aã]o|an[aá]lise|gest[aã]o|manuten[cç][aã]o|condu[cç][aã]o|coordena[cç][aã]o|planejamento|otimiza[cç][aã]o|automa[cç][aã]o|organiza[cç][aã]o) (de|do|da|dos|das)\s+/i,
-    (m) => `${NOUN_TO_VERB[normalize(m[1])]} ${ART_DE[low(m[2])]}`,
+    (m) => `${NOUN_TO_VERB[normalize(m[1] ?? "")]} ${ART_DE[low(m[2])]}`,
   ],
   [/^fiz\s+/i, () => "Executei "],
   [new RegExp(`^(${Object.keys(IMPERFECT).join("|")})\\s+`, "i"), (m) => IMPERFECT[low(m[1])] + " "],
@@ -535,9 +535,10 @@ export function analyzeResume(job: string, resume: string): Analysis {
   ];
   if (weakVerbs) changes.push(`${weakVerbs} frase${weakVerbs > 1 ? "s" : ""} reescrita${weakVerbs > 1 ? "s" : ""} com verbos de ação no passado.`);
   if (found.length) changes.push(`${found.length} palavra${found.length > 1 ? "s" : ""}-chave já presente${found.length > 1 ? "s" : ""} no seu texto destacada${found.length > 1 ? "s" : ""} no Resumo e em Habilidades.`);
-  if (synonyms.length)
+  const firstSynonym = synonyms[0];
+  if (firstSynonym)
     changes.push(
-      `${synonyms.length} termo${synonyms.length > 1 ? "s" : ""} padronizado${synonyms.length > 1 ? "s" : ""} com a nomenclatura da vaga (ex.: ${synonyms[0].resumeAlias} → ${synonyms[0].term}).`,
+      `${synonyms.length} termo${synonyms.length > 1 ? "s" : ""} padronizado${synonyms.length > 1 ? "s" : ""} com a nomenclatura da vaga (ex.: ${firstSynonym.resumeAlias} → ${firstSynonym.term}).`,
     );
   if (decorRemoved) changes.push("Ícones, símbolos e tabulações removidos para não confundir o parser.");
   changes.push("Nenhuma experiência, cargo, métrica ou curso foi adicionado. Termos ausentes ficam apenas como recomendação.");
