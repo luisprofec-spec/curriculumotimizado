@@ -5,8 +5,8 @@
 ---
 
 ## 🔗 Acesso ao Projeto
-- **Aplicação Publicada:** [SEU_LINK_DO_LOVABLE_AQUI](https://sua-url.lovable.app)
-- **Repositório:** [https://github.com/SEU_USUARIO/SEU_REPOSITORIO](https://github.com/SEU_USUARIO/SEU_REPOSITORIO)
+- **Aplicação Publicada:** https://curriculumotimizado.lovable.app
+- **Repositório:** 
 
 ---
 
@@ -40,8 +40,82 @@ Esta aplicação resolve essa barreira reorganizando o currículo real do candid
 ## 🧠 Mega Prompt Original
 Prompt estruturado utilizado na geração da aplicação via Lovable:
 
-\`\`\`markdown
-[COLE AQUI O MEGA PROMPT DO TÓPICO 1 DESTA RESPOSTA]
+# Projeto: ResumAI ATS - Otimizador de Currículos para Triagem Automática
+
+Crie uma aplicação web moderna, responsiva e acessível focada em adequar currículos para sistemas ATS (Applicant Tracking Systems), comparando a descrição da vaga com o currículo do candidato e gerando uma versão otimizada pronta para exportação.
+
+---
+
+## 1. Diretriz Ética Inviolável
+- A aplicação deve **apenas reorganizar, reescrever e destacar experiências reais** fornecidas pelo usuário.
+- **Nunca inventar competências, cargos, métricas ou cursos** inexistentes no texto original.
+- Exibir com destaque visual (banner/aviso com ícone de escudo): *"Princípio Ético: Otimizamos seu currículo sem inventar nenhuma experiência. A transparência garante seu sucesso na entrevista."*
+
+---
+
+## 2. Design System & Identidade Visual
+- **UI Framework**: Componentes do `shadcn/ui` (Card, Button, Textarea, Progress, Badge, Tabs, Alert, Dialog, Separator, Tooltip).
+- **Ícones**: `lucide-react` (CheckCircle, AlertTriangle, FileText, ArrowRight, Download, Copy, Sparkles, ShieldCheck).
+- **Paleta de Cores**:
+  - *Fundo*: Slate-50 (#F8FAFC) com áreas de trabalho em Branco puro (#FFFFFF).
+  - *Tipografia*: Slate-900 (#0F172A) para títulos, Slate-600 (#475569) para apoio.
+  - *Cor Primária / Ação*: Indigo-600 (#4F46E5) com hover em Indigo-700.
+  - *Sucessos / Match Alto*: Emerald-600 (#059669) e Emerald-100 para badges.
+  - *Alerta / Palavras Faltantes*: Amber-600 (#D97706) e Amber-100 para badges.
+  - *Bordas*: Slate-200 (#E2E8F0).
+- **Tipografia**: Sans-serif limpa (Inter ou padrão do sistema), foco em legibilidade e hierarquia estrita.
+
+---
+
+## 3. Estrutura e Telas da Aplicação
+
+### A. Cabeçalho (Header)
+- Logotipo com ícone de documento estilizado e texto: **ResumAI ATS**.
+- Badge discreto: "100% ATS Friendly".
+- Botão/Link para limpar campos e começar nova análise.
+
+### B. Seção de Entrada (Input Section)
+Layout em duas colunas (lado a lado no desktop, empilhado no mobile):
+1. **Coluna 1 (Vaga Desejada)**:
+   - Título: "1. Descrição da Vaga".
+   - Textarea expansível com placeholder: "Cole aqui os requisitos, responsabilidades e qualificações da vaga...".
+   - Contador de caracteres/palavras.
+   - Botão para preencher com exemplo de vaga (para teste rápido).
+2. **Coluna 2 (Seu Currículo Atual)**:
+   - Título: "2. Seu Currículo Atual".
+   - Textarea expansível com placeholder: "Cole o texto completo do seu currículo atual...".
+   - Contador de caracteres/palavras.
+   - Botão para preencher com currículo de exemplo.
+3. **Barra de Ação Central**:
+   - Botão primário destacado: "Analisar e Otimizar Currículo" com animação de carregamento (spinner) ao clicar.
+
+### C. Seção de Resultados (Exibida após a análise)
+Painel dividido em três abas ou cartões bem definidos:
+
+1. **Dashboard de Compatibilidade (Match Score)**:
+   - Indicador circular ou barra de progresso mostrando o **Match Score** (0% a 100%).
+   - Classificação textual (ex: "Baixa compatibilidade", "Boa aderência", "Excelente aderência").
+   - Diagnóstico resumido: 3 pontos fortes e 3 gargalos identificados para o ATS.
+
+2. **Auditoria de Palavras-chave (Keywords Tracker)**:
+   - **Palavras-chave encontradas** (Badges em Emerald com ícone de check): termos técnicos, hard skills e soft skills que já coincidem.
+   - **Palavras-chave ausentes / recomendadas** (Badges em Amber com ícone de alerta): competências da vaga que não aparecem no currículo original e precisam ser consideradas.
+
+3. **Currículo ATS-Friendly Gerado**:
+   - Formatação estruturada em padrão ATS: títulos lineares em caixa alta (RESUMO PROFISSIONAL, EXPERIÊNCIA, HABILIDADES, FORMAÇÃO), sem tabelas, colunas duplas ou caixas de texto que quebram parsers.
+   - Verbos de ação fortes e realinhamento das sentenças com os termos da vaga.
+   - Toolbar de exportação:
+     - Botão "Copiar Texto" (com feedback de toast/check).
+     - Botão "Baixar TXT".
+     - Botão "Exportar PDF Formatado para ATS".
+
+---
+
+## 4. Lógica de Processamento (Simulação Frontend Inteligente)
+- Extrair termos-chave (hard skills, cargos, ferramentas e metodologias) da vaga informada.
+- Verificar quais aparecem no texto do currículo do usuário.
+- Calcular a pontuação: `(termos_encontrados / total_termos_relevantes) * 100`.
+- Montar o texto ajustado organizando o conteúdo original nas seções padrão de um currículo ATS, inserindo as palavras-chave ausentes de forma contextualizada apenas onde for pedagogicamente plausível dentro do contexto profissional do usuário.
 \`\`\`
 
 ---
@@ -57,15 +131,18 @@ Após a versão inicial gerada pela IA, foram solicitados os seguintes ajustes:
 ## 📸 Demonstração da Aplicação
 
 ### 1. Tela Inicial e Inserção de Dados
-![Tela Inicial](./docs/screenshot-home.png)
+<img width="1829" height="858" alt="image" src="https://github.com/user-attachments/assets/be7f165e-4733-4c66-8fc9-c1c2e3c7338c" />
+
 
 ### 2. Diagnóstico de Compatibilidade e Palavras-chave
-![Resultado da Análise](./docs/screenshot-match.png)
+
+<img width="1783" height="838" alt="image" src="https://github.com/user-attachments/assets/a89f99ea-cd9e-4ee1-ab78-c2c18b1f4074" />
 
 ### 3. Currículo Otimizado Pronto para Exportar
-![Versão ATS](./docs/screenshot-ats.png)
 
-*(Dica: Suba os prints na pasta `/docs` do repositório para exibi-los acima)*
+<img width="1829" height="847" alt="image" src="https://github.com/user-attachments/assets/c2b807be-fe13-4c66-a045-3a8d50224579" />
+
+
 
 ---
 
