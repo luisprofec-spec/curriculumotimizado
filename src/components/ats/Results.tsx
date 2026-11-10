@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import {
   AlertTriangle,
   Check,
@@ -148,7 +148,7 @@ function DiagnosisCard({
 }: {
   title: string;
   description: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   items: string[];
   dot: string;
 }) {
@@ -252,7 +252,7 @@ function KeywordsTab({ analysis }: { analysis: Analysis }) {
   );
 }
 
-function KeywordGroup({ label, children }: { label: string; children: React.ReactNode }) {
+function KeywordGroup({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
