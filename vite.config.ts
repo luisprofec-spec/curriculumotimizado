@@ -15,4 +15,24 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    // Pre-bundle UI deps at startup so the dev server never re-optimizes mid-session
+    // (a mid-session re-optimize mixes React chunk hashes and crashes hooks).
+    optimizeDeps: {
+      include: [
+        "sonner",
+        "jspdf",
+        "lucide-react",
+        "class-variance-authority",
+        "clsx",
+        "tailwind-merge",
+        "@radix-ui/react-dialog",
+        "@radix-ui/react-progress",
+        "@radix-ui/react-separator",
+        "@radix-ui/react-slot",
+        "@radix-ui/react-tabs",
+        "@radix-ui/react-tooltip",
+      ],
+    },
+  },
 });
