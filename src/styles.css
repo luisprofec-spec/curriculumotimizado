@@ -221,6 +221,82 @@
   }
 }
 
+/*
+ * Print / "Salvar como PDF": only the résumé text, ATS-ready.
+ * Ink is plain black on white by design (no theme colors on paper).
+ */
+.print-resume {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 2cm;
+  }
+
+  html,
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  body > *:not(.print-resume) {
+    display: none !important;
+  }
+
+  .print-resume {
+    display: block;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.15;
+    color: black;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .print-resume * {
+    color: black !important;
+    background: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    margin: 0;
+    padding: 0;
+  }
+
+  .print-resume h1 {
+    font-size: 16pt;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 4pt;
+  }
+
+  .print-resume h2 {
+    font-size: 11.5pt;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-top: 8pt;
+    margin-bottom: 3pt;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .print-resume p {
+    orphans: 2;
+    widows: 2;
+  }
+
+  .print-resume .print-bullet {
+    display: flex;
+    gap: 6pt;
+    break-inside: avoid;
+  }
+
+  .print-resume .print-gap {
+    height: 5pt;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

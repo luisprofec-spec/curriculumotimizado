@@ -1,7 +1,11 @@
 import { useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import {
   AlertTriangle,
+  CalendarCheck,
   Check,
+  Loader2,
+  Printer,
   CheckCircle,
   Copy,
   Download,
@@ -13,6 +17,16 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +37,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { ScoreRing } from "@/components/ats/ScoreRing";
 import type { Analysis, KeywordResult } from "@/lib/ats/analyze";
 import { CATEGORY_LABELS, type Category } from "@/lib/ats/keywords";
-import { downloadPdf, downloadTxt } from "@/lib/ats/export";
+import { downloadPdf, downloadTxt, isHeading, printResume } from "@/lib/ats/export";
 
 const LEVEL_COPY: Record<Analysis["level"], string> = {
   low: "Seu currículo ainda conversa pouco com esta vaga. Veja os termos ausentes e revise se algum reflete experiência real.",
@@ -42,6 +56,7 @@ function groupByCategory(items: KeywordResult[]) {
 export function Results({ analysis }: { analysis: Analysis }) {
   return (
     <Tabs defaultValue="score" className="w-full">
+      <PrintResume text={analysis.optimizedResume} />
       <TabsList className="grid h-auto w-full grid-cols-3 rounded-xl border border-border bg-card p-1.5 shadow-card">
         <TabsTrigger value="score" className="gap-2 rounded-lg py-2.5 data-[state=active]:bg-primary-soft data-[state=active]:text-accent-foreground data-[state=active]:shadow-none">
           <Gauge className="size-4" />
@@ -264,6 +279,7 @@ function KeywordGroup({ label, children }: { label: string; children: ReactNode 
 function ResumeTab({ analysis }: { analysis: Analysis }) {
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [pending, setPending] = useState<ExportKind | null>(null);
   const text = analysis.optimizedResume;
 
   const copy = async () => {
@@ -289,6 +305,14 @@ function ResumeTab({ analysis }: { analysis: Analysis }) {
     }
   };
 
+  const confirmExport = () => {
+    const kind = pending;
+    setPending(null);
+    if (kind === "pdf") void pdf();
+    if (kind === "txt") downloadTxt(text);
+    if (kind === "print") setTimeout(printResume, 250);
+  };
+
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
       <Card className="overflow-hidden shadow-card">
@@ -298,15 +322,24 @@ function ResumeTab({ analysis }: { analysis: Analysis }) {
             {copied ? <Check className="text-success" /> : <Copy />}
             {copied ? "Copiado" : "Copiar Texto"}
           </Button>
-          <Button variant="outline" size="sm" onClick={() => downloadTxt(text)}>
+          <Button variant="outline" size="sm" onClick={() => setPending("txt")}>
             <Download />
             Baixar TXT
           </Button>
-          <Button size="sm" onClick={pdf} disabled={exporting}>
-            <FileText />
+          <Button variant="outline" size="sm" onClick={() => setPending("print")}>
+            <Printer />
+            Imprimir
+          </Button>
+          <Button size="sm" onClick={() => setPending("pdf")} disabled={exporting}>
+            {exporting ? <Loader2 className="animate-spin" /> : <FileText />}
             Exportar PDF Formatado para ATS
           </Button>
         </div>
+        <ExportConfirmDialog
+          kind={pending}
+          onCancel={() => setPending(null)}
+          onConfirm={confirmExport}
+        />
         <div className="bg-muted/30 p-4 sm:p-8">
           <article
             aria-label="Prévia do currículo otimizado"
@@ -339,8 +372,88 @@ function ResumeTab({ analysis }: { analysis: Analysis }) {
   );
 }
 
-const isHeading = (line: string) =>
-  line.length <= 40 && /[A-ZÀ-Ý]{4,}/.test(line) && line === line.toUpperCase() && !/[@\d]/.test(line);
+type ExportKind = "pdf" | "txt" | "print";
+
+const EXPORT_COPY: Record<ExportKind, string> = {
+  pdf: "Baixar PDF",
+  txt: "Baixar TXT",
+  print: "Abrir impressão",
+};
+
+const REVIEW_ITEMS = [
+  "Datas de início e término de cada experiência e formação",
+  "Nomes de empresas, cargos e instituições",
+  "E-mail, telefone e links de contato atualizados",
+  "Cada termo do texto reflete uma experiência real sua",
+];
+
+function ExportConfirmDialog({
+  kind,
+  onCancel,
+  onConfirm,
+}: {
+  kind: ExportKind | null;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <AlertDialog open={kind !== null} onOpenChange={(open) => !open && onCancel()}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <CalendarCheck className="size-5 text-primary" />
+            Revise antes de enviar
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            O ATS e o recrutador vão ler exatamente este texto. Confira com atenção antes de submeter à vaga:
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <ul className="space-y-2.5 rounded-lg border border-border bg-muted/50 p-4">
+          {REVIEW_ITEMS.map((item) => (
+            <li key={item} className="flex gap-2.5 text-sm leading-relaxed text-foreground">
+              <CheckCircle className="mt-0.5 size-4 shrink-0 text-success" />
+              {item}
+            </li>
+          ))}
+        </ul>
+        {kind === "print" && (
+          <p className="text-xs text-muted-foreground">
+            Na janela de impressão, escolha “Salvar como PDF” e desative “Cabeçalhos e rodapés”.
+          </p>
+        )}
+        <AlertDialogFooter>
+          <AlertDialogCancel>Voltar e revisar</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>{kind ? EXPORT_COPY[kind] : "Exportar"}</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+/** Rendered straight into <body>; hidden on screen, the only thing shown when printing. */
+function PrintResume({ text }: { text: string }) {
+  if (typeof document === "undefined") return null;
+  const lines = text.split("\n");
+  return createPortal(
+    <div className="print-resume" aria-hidden>
+      {lines.map((raw, i) => {
+        const line = raw.trim();
+        if (!line) return <div key={i} className="print-gap" />;
+        if (i === 0) return <h1 key={i}>{line}</h1>;
+        if (isHeading(line)) return <h2 key={i}>{line}</h2>;
+        if (line.startsWith("- "))
+          return (
+            <p key={i} className="print-bullet">
+              <span>-</span>
+              {line.slice(2)}
+            </p>
+          );
+        return <p key={i}>{line}</p>;
+      })}
+    </div>,
+    document.body,
+  );
+}
 
 function ResumePreview({ text }: { text: string }) {
   const lines = text.split("\n");
