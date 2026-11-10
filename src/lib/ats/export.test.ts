@@ -42,7 +42,9 @@ describe("PDF export layout", () => {
 
   it("uses 1.15 line spacing between consecutive body lines", () => {
     const body = lines.filter((l) => l.size === FONT_SIZES.body && l.text !== "-" && l.page === 1);
-    const gap = body[2].y - body[1].y;
+    const [, first, second] = body;
+    expect(first && second).toBeTruthy();
+    const gap = second!.y - first!.y;
     expect(gap).toBeCloseTo(FONT_SIZES.body * 1.15, 5);
   });
 

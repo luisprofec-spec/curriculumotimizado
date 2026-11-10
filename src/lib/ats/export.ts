@@ -86,7 +86,7 @@ export function layoutResume(text: string, wrap: Wrap, page = A4): PdfLine[] {
       if (bullet && j === 0) {
         const before = out.length;
         place(w, PDF_MARGIN + indent, FONT_SIZES.body, false);
-        const placed = out[before];
+        const placed = out[before] as PdfLine;
         out.splice(before, 0, { ...placed, x: PDF_MARGIN, text: "-" });
         return;
       }
