@@ -28,3 +28,8 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+
+- Résumé analysis runs entirely in the browser (`src/lib/ats/`), with no backend or AI call; keeps users' CVs private and the app free to run.
+- The generated résumé may only reorder, reword or standardize text already in the user's input; missing keywords are shown as recommendations only (covered by `src/lib/ats/analyze.test.ts`).
